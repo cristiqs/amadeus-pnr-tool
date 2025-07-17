@@ -1,4 +1,3 @@
-
 import streamlit as st
 from PIL import Image
 import easyocr
@@ -18,16 +17,16 @@ def extract_commands(image):
     results = reader.readtext(image)
     text = " ".join([item[1] for item in results])
 
-    st.subheader("🧾 OCR Extracted Text")
+    # Show raw OCR result
+    st.subheader("🧾 OCR Extracted Text (debug)")
     st.text(text)
 
-
     # Extract relevant fields using regex
-    flight_match = re.search(r"Flight Number[:\s]*([A-Z0-9 ]+)", text)
-    dep_match = re.search(r"Departs from:.*?\((\w{3})\).*?(\d{2}/\d{2}/\d{4}) (\d{2}):(\d{2})", text)
-    arr_match = re.search(r"Arrives to:.*?\((\w{3})\).*?(\d{2}/\d{2}/\d{4}) (\d{2}):(\d{2})", text)
+    flight_match = re.search(r"Flight Number[:\\s]*([A-Z0-9 ]+)", text)
+    dep_match = re.search(r"Departs from:.*?\\((\\w{3})\\).*?(\\d{2}/\\d{2}/\\d{4}) (\\d{2}):(\\d{2})", text)
+    arr_match = re.search(r"Arrives to:.*?\\((\\w{3})\\).*?(\\d{2}/\\d{2}/\\d{4}) (\\d{2}):(\\d{2})", text)
     name_match = re.search(r"(MS|MR|MRS) ([A-Z][a-zA-Z]+(?: [A-Z][a-zA-Z]+)*) ([A-Z][a-zA-Z]+)", text)
-    pnr_match = re.search(r"Flight confirmation code[:\s]*([A-Z0-9]{6})", text)
+    pnr_match = re.search(r"Flight confirmation code[:\\s]*([A-Z0-9]{6})", text)
 
     if not (flight_match and dep_match and arr_match and name_match):
         return "Could not extract all required fields. Please use a clearer screenshot."
@@ -52,15 +51,14 @@ def extract_commands(image):
     ss_command = f"SS {flight_number}{service_class} {dep_date} {dep_city}{arr_city} GK1/{flight_times}/{pnr_code}"
     name_command = f"NM1{last_name}/{first_name}"
 
-    return ss_command + "\n" + name_command
+    return ss_command + "\\n" + name_command
 
 if uploaded_file:
     image = Image.open(uploaded_file)
-    st.image(image, caption="Uploaded Itinerary", use_column_width=True)
+    st.image(image, caption="Uploaded Itinerary", use_container_width=True)
 
     with st.spinner("Extracting and generating commands..."):
         commands = extract_commands(image)
 
     st.subheader("📋 Amadeus Commands:")
     st.code(commands, language="text")
-    st.success("Copy and paste into Amadeus!")
