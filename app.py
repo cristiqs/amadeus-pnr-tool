@@ -18,6 +18,10 @@ def extract_commands(image):
     results = reader.readtext(image)
     text = " ".join([item[1] for item in results])
 
+    st.subheader("🧾 OCR Extracted Text")
+    st.text(text)
+
+
     # Extract relevant fields using regex
     flight_match = re.search(r"Flight Number[:\s]*([A-Z0-9 ]+)", text)
     dep_match = re.search(r"Departs from:.*?\((\w{3})\).*?(\d{2}/\d{2}/\d{4}) (\d{2}):(\d{2})", text)
