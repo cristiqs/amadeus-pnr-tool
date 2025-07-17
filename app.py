@@ -21,12 +21,12 @@ def extract_commands(image):
     st.subheader("🧾 OCR Extracted Text (debug)")
     st.text(text)
 
-    # Extract relevant fields using regex
-    flight_match = re.search(r"Flight Number[:\\s]*([A-Z0-9 ]+)", text)
-    dep_match = re.search(r"Departs from:.*?\\((\\w{3})\\).*?(\\d{2}/\\d{2}/\\d{4}) (\\d{2}):(\\d{2})", text)
-    arr_match = re.search(r"Arrives to:.*?\\((\\w{3})\\).*?(\\d{2}/\\d{2}/\\d{4}) (\\d{2}):(\\d{2})", text)
-    name_match = re.search(r"(MS|MR|MRS) ([A-Z][a-zA-Z]+(?: [A-Z][a-zA-Z]+)*) ([A-Z][a-zA-Z]+)", text)
-    pnr_match = re.search(r"Flight confirmation code[:\\s]*([A-Z0-9]{6})", text)
+    # Updated regex to support dot-time format and OCR quirks
+    flight_match = re.search(r"Flight Number[:\s]*([A-Z0-9 ]+)", text)
+    dep_match = re.search(r"Departs from:.*?\((\w{3})\).*?(\d{2}/\d{2}/\d{4}) (\d{2})\.(\d{2})", text)
+    arr_match = re.search(r"Arrives to:.*?\((\w{3})\).*?(\d{2}/\d{2}/\d{4}) (\d{2})\.(\d{2})", text)
+    name_match = re.search(r"(MR|MS|MRS) ([A-Z][a-z]+(?: [A-Z][a-z]+)*) ([A-Z][a-z]+)", text)
+    pnr_match = re.search(r"Flight confirmation code[:\s]*([A-Z0-9]{6})", text)
 
     if not (flight_match and dep_match and arr_match and name_match):
         return "Could not extract all required fields. Please use a clearer screenshot."
@@ -51,7 +51,7 @@ def extract_commands(image):
     ss_command = f"SS {flight_number}{service_class} {dep_date} {dep_city}{arr_city} GK1/{flight_times}/{pnr_code}"
     name_command = f"NM1{last_name}/{first_name}"
 
-    return ss_command + "\\n" + name_command
+    return ss_command + "\n" + name_command
 
 if uploaded_file:
     image = Image.open(uploaded_file)
